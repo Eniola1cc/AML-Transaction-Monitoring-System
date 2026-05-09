@@ -1,0 +1,3 @@
+scenario,alerts_created,fraud_captured,alert_fraud_rate
+Original Rules: score >= 2,1779421,8186,0.004600372817899755
+Strict Rules: score >= 3,606385,5297,0.008735374390857293

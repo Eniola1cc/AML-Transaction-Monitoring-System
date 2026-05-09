@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Large/generated data files
+data/raw/*
+data/processed/*
+
+# Large generated report outputs
+reports/risk_scores.csv
+reports/prioritised_alert_queue.csv
+reports/suspicious_transactions.csv
+
+# Optional model outputs
+# Uncomment later if model files become too large
+# models/*.pkl
+# models/*.joblib
+
+# Keep folders visible
+!data/raw/.gitkeep
+!data/processed/.gitkeep
