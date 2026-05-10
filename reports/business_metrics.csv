@@ -1,0 +1,10 @@
+metric,value
+Total Transactions,6362620.0
+Total Fraud Cases,8213.0
+Total Rule-Based Alerts,1779421.0
+Critical Risk Alerts,8162.0
+Critical Fraud Cases,7109.0
+Critical Fraud Rate,0.8709875030629748
+High Risk Alerts,8363.0
+High Risk Fraud Cases,1032.0
+High Risk Fraud Rate,0.12340069353102953
