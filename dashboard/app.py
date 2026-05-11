@@ -8,11 +8,7 @@ st.set_page_config(
 )
 
 st.title("🚨 AML Transaction Monitoring Dashboard")
-st.write(
-    "Rule-based and machine-learning alert prioritisation system "
-    "for suspicious transaction monitoring."
-)
-
+st.write("Rule-based and machine-learning alert prioritisation system for suspicious transaction monitoring.")
 
 @st.cache_data
 def load_data():
@@ -23,64 +19,17 @@ def load_data():
     rule_comparison = pd.read_csv("reports/rule_tuning_comparison.csv")
     business_metrics = pd.read_csv("reports/business_metrics.csv")
     alert_queue = pd.read_csv("reports/prioritised_alert_queue.csv")
+    return risk_band_summary, alert_summary, model_metrics, feature_importance, rule_comparison, business_metrics, alert_queue
 
-    return (
-        risk_band_summary,
-        alert_summary,
-        model_metrics,
-        feature_importance,
-        rule_comparison,
-        business_metrics,
-        alert_queue,
-    )
-
-
-try:
-    (
-        risk_band_summary,
-        alert_summary,
-        model_metrics,
-        feature_importance,
-        rule_comparison,
-        business_metrics,
-        alert_queue,
-    ) = load_data()
-except FileNotFoundError as e:
-    st.error("Required report file is missing.")
-    st.warning(
-        "Please run the notebooks/pipeline first so the CSV files are generated "
-        "inside the reports/ folder."
-    )
-    st.code(str(e))
-    st.stop()
-
+risk_band_summary, alert_summary, model_metrics, feature_importance, rule_comparison, business_metrics, alert_queue = load_data()
 
 # KPIs
 st.subheader("📌 Key AML Metrics")
 
-total_transactions = int(
-    business_metrics.loc[
-        business_metrics["metric"] == "Total Transactions", "value"
-    ].values[0]
-)
-
-total_fraud = int(
-    business_metrics.loc[
-        business_metrics["metric"] == "Total Fraud Cases", "value"
-    ].values[0]
-)
-
-total_alerts = int(
-    business_metrics.loc[
-        business_metrics["metric"] == "Total Rule-Based Alerts", "value"
-    ].values[0]
-)
-
-critical_alerts = int(
-    business_metrics.loc[
-        business_metrics["metric"] == "Critical Risk Alerts", "value"
-    ].values[0]
-)
+total_transactions = int(business_metrics.loc[business_metrics["metric"] == "Total Transactions", "value"].values[0])
+total_fraud = int(business_metrics.loc[business_metrics["metric"] == "Total Fraud Cases", "value"].values[0])
+total_alerts = int(business_metrics.loc[business_metrics["metric"] == "Total Rule-Based Alerts", "value"].values[0])
+critical_alerts = int(business_metrics.loc[business_metrics["metric"] == "Critical Risk Alerts", "value"].values[0])
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -91,26 +40,25 @@ col4.metric("Critical Alerts", f"{critical_alerts:,}")
 
 st.divider()
 
-
 # Risk band summary
 st.subheader("⚠️ Risk Band Summary")
 st.dataframe(risk_band_summary, width="stretch")
 
-if "risk_band" in risk_band_summary.columns and "transactions" in risk_band_summary.columns:
-    st.bar_chart(risk_band_summary.set_index("risk_band")["transactions"])
+st.bar_chart(
+    risk_band_summary.set_index("risk_band")["transactions"]
+)
 
 st.divider()
-
 
 # Alert summary
 st.subheader("🚩 Prioritised Alert Queue Summary")
 st.dataframe(alert_summary, width="stretch")
 
-if "risk_band" in alert_summary.columns and "fraud_cases" in alert_summary.columns:
-    st.bar_chart(alert_summary.set_index("risk_band")["fraud_cases"])
+st.bar_chart(
+    alert_summary.set_index("risk_band")["fraud_cases"]
+)
 
 st.divider()
-
 
 # Model performance
 st.subheader("🤖 Machine Learning Model Performance")
@@ -127,18 +75,17 @@ m5.metric("ROC AUC", f"{metrics['roc_auc']:.4f}")
 
 st.divider()
 
-
 # Feature importance
 st.subheader("📊 Top Model Features")
 
 top_features = feature_importance.head(10)
 st.dataframe(top_features, width="stretch")
 
-if "feature" in top_features.columns and "importance" in top_features.columns:
-    st.bar_chart(top_features.set_index("feature")["importance"])
+st.bar_chart(
+    top_features.set_index("feature")["importance"]
+)
 
 st.divider()
-
 
 # Rule tuning
 st.subheader("🧠 Rule Tuning Comparison")
@@ -147,13 +94,12 @@ st.dataframe(rule_comparison, width="stretch")
 
 st.divider()
 
-
 # Alert explorer
 st.subheader("🔎 Alert Queue Explorer")
 
 risk_filter = st.selectbox(
     "Filter by Risk Band",
-    ["All"] + sorted(alert_queue["risk_band"].dropna().unique().tolist())
+    ["All"] + sorted(alert_queue["risk_band"].unique().tolist())
 )
 
 filtered_alerts = alert_queue.copy()
@@ -173,13 +119,11 @@ display_cols = [
     "ml_risk_score",
     "final_risk_score",
     "risk_band",
-    "isFraud",
+    "isFraud"
 ]
 
-available_cols = [col for col in display_cols if col in filtered_alerts.columns]
-
 st.dataframe(
-    filtered_alerts[available_cols].head(1000),
+    filtered_alerts[display_cols].head(1000),
     width="stretch"
 )
 
