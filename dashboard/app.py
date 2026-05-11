@@ -1,98 +1,186 @@
-from __future__ import annotations
-
-import pandas as pd
 import streamlit as st
+import pandas as pd
 
-st.set_page_config(page_title="AML Alert Prioritisation", layout="wide")
-st.title("Transaction Monitoring & AML Alert Prioritisation System")
-
-st.sidebar.title("AML Dashboard")
-st.sidebar.info(
-    """
-    AML Transaction Monitoring System
-
-    Features:
-    - Rule-Based Detection
-    - ML Risk Scoring
-    - Alert Prioritisation
-    - Fraud Analytics
-    """
+st.set_page_config(
+    page_title="AML Transaction Monitoring Dashboard",
+    page_icon="🚨",
+    layout="wide"
 )
-st.sidebar.header("Filters")
+
+st.title("🚨 AML Transaction Monitoring Dashboard")
+st.write(
+    "Rule-based and machine-learning alert prioritisation system "
+    "for suspicious transaction monitoring."
+)
 
 
 @st.cache_data
-def load_alert_data() -> pd.DataFrame:
-    return pd.read_csv("reports/alert_queue_summary.csv")
+def load_data():
+    risk_band_summary = pd.read_csv("reports/risk_band_summary.csv")
+    alert_summary = pd.read_csv("reports/alert_queue_summary.csv")
+    model_metrics = pd.read_csv("reports/model_metrics.csv")
+    feature_importance = pd.read_csv("reports/model_feature_importance.csv")
+    rule_comparison = pd.read_csv("reports/rule_tuning_comparison.csv")
+    business_metrics = pd.read_csv("reports/business_metrics.csv")
+    alert_queue = pd.read_csv("reports/prioritised_alert_queue.csv")
 
-
-@st.cache_data
-def load_optional_report(path: str) -> pd.DataFrame | None:
-    try:
-        return pd.read_csv(path)
-    except Exception:
-        return None
+    return (
+        risk_band_summary,
+        alert_summary,
+        model_metrics,
+        feature_importance,
+        rule_comparison,
+        business_metrics,
+        alert_queue,
+    )
 
 
 try:
-    df = load_alert_data()
-except Exception:
-    st.warning("Run the pipeline first to generate reports/alert_queue_summary.csv")
+    (
+        risk_band_summary,
+        alert_summary,
+        model_metrics,
+        feature_importance,
+        rule_comparison,
+        business_metrics,
+        alert_queue,
+    ) = load_data()
+except FileNotFoundError as e:
+    st.error("Required report file is missing.")
+    st.warning(
+        "Please run the notebooks/pipeline first so the CSV files are generated "
+        "inside the reports/ folder."
+    )
+    st.code(str(e))
     st.stop()
 
-risk_filter = st.sidebar.multiselect(
-    "Risk band",
-    sorted(df["risk_band"].dropna().unique()),
-    default=sorted(df["risk_band"].dropna().unique()),
-)
-country_filter = st.sidebar.multiselect(
-    "Country",
-    sorted(df["country"].dropna().unique()),
-    default=sorted(df["country"].dropna().unique())[:10],
-)
 
-filtered_alerts = df[df["risk_band"].isin(risk_filter) & df["country"].isin(country_filter)]
+# KPIs
+st.subheader("📌 Key AML Metrics")
 
-c1, c2, c3 = st.columns(3)
-c1.metric("Transactions", f"{len(filtered_alerts):,}")
-c2.metric("Avg Risk Score", f"{filtered_alerts['risk_score'].mean():.1f}")
-if "is_suspicious" in filtered_alerts:
-    c3.metric("Known suspicious rate", f"{100 * filtered_alerts['is_suspicious'].mean():.1f}%")
-
-risk_band_summary = load_optional_report("reports/risk_band_summary.csv")
-if risk_band_summary is not None and "fraud_rate" in risk_band_summary.columns:
-    st.subheader("Risk Band Summary")
-    risk_display = risk_band_summary.copy()
-    risk_display["fraud_rate"] = (
-        risk_display["fraud_rate"] * 100
-    ).round(2).astype(str) + "%"
-    st.dataframe(risk_display, use_container_width=True)
-
-alert_summary = load_optional_report("reports/rule_tuning_comparison.csv")
-if alert_summary is not None and "fraud_rate" in alert_summary.columns:
-    st.subheader("Rule Tuning Comparison")
-    alert_display = alert_summary.copy()
-    alert_display["fraud_rate"] = (
-        alert_display["fraud_rate"] * 100
-    ).round(2).astype(str) + "%"
-    st.dataframe(alert_display, use_container_width=True)
-
-st.subheader("Alert Queue Explorer")
-st.write(
-    f"Showing first {min(len(filtered_alerts), 1000):,} "
-    f"of {len(filtered_alerts):,} alerts"
+total_transactions = int(
+    business_metrics.loc[
+        business_metrics["metric"] == "Total Transactions", "value"
+    ].values[0]
 )
 
-if "isFraud" in filtered_alerts.columns:
-    filtered_alerts = filtered_alerts.rename(columns={"isFraud": "fraud_flag"})
-
-st.dataframe(
-    filtered_alerts.sort_values("risk_score", ascending=False).head(1000),
-    use_container_width=True,
+total_fraud = int(
+    business_metrics.loc[
+        business_metrics["metric"] == "Total Fraud Cases", "value"
+    ].values[0]
 )
 
-st.subheader("Risk Band Distribution")
-st.bar_chart(filtered_alerts["risk_band"].value_counts().sort_index())
+total_alerts = int(
+    business_metrics.loc[
+        business_metrics["metric"] == "Total Rule-Based Alerts", "value"
+    ].values[0]
+)
+
+critical_alerts = int(
+    business_metrics.loc[
+        business_metrics["metric"] == "Critical Risk Alerts", "value"
+    ].values[0]
+)
+
+col1, col2, col3, col4 = st.columns(4)
+
+col1.metric("Total Transactions", f"{total_transactions:,}")
+col2.metric("Fraud Cases", f"{total_fraud:,}")
+col3.metric("Rule-Based Alerts", f"{total_alerts:,}")
+col4.metric("Critical Alerts", f"{critical_alerts:,}")
 
 st.divider()
-st.caption("Built with Python, Scikit-learn, Pandas, and Streamlit.")
+
+
+# Risk band summary
+st.subheader("⚠️ Risk Band Summary")
+st.dataframe(risk_band_summary, width="stretch")
+
+if "risk_band" in risk_band_summary.columns and "transactions" in risk_band_summary.columns:
+    st.bar_chart(risk_band_summary.set_index("risk_band")["transactions"])
+
+st.divider()
+
+
+# Alert summary
+st.subheader("🚩 Prioritised Alert Queue Summary")
+st.dataframe(alert_summary, width="stretch")
+
+if "risk_band" in alert_summary.columns and "fraud_cases" in alert_summary.columns:
+    st.bar_chart(alert_summary.set_index("risk_band")["fraud_cases"])
+
+st.divider()
+
+
+# Model performance
+st.subheader("🤖 Machine Learning Model Performance")
+st.dataframe(model_metrics, width="stretch")
+
+metrics = model_metrics.iloc[0]
+
+m1, m2, m3, m4, m5 = st.columns(5)
+m1.metric("Accuracy", f"{metrics['accuracy']:.2%}")
+m2.metric("Precision", f"{metrics['precision']:.2%}")
+m3.metric("Recall", f"{metrics['recall']:.2%}")
+m4.metric("F1 Score", f"{metrics['f1_score']:.2%}")
+m5.metric("ROC AUC", f"{metrics['roc_auc']:.4f}")
+
+st.divider()
+
+
+# Feature importance
+st.subheader("📊 Top Model Features")
+
+top_features = feature_importance.head(10)
+st.dataframe(top_features, width="stretch")
+
+if "feature" in top_features.columns and "importance" in top_features.columns:
+    st.bar_chart(top_features.set_index("feature")["importance"])
+
+st.divider()
+
+
+# Rule tuning
+st.subheader("🧠 Rule Tuning Comparison")
+st.write("This compares alert volume and fraud capture across rule thresholds.")
+st.dataframe(rule_comparison, width="stretch")
+
+st.divider()
+
+
+# Alert explorer
+st.subheader("🔎 Alert Queue Explorer")
+
+risk_filter = st.selectbox(
+    "Filter by Risk Band",
+    ["All"] + sorted(alert_queue["risk_band"].dropna().unique().tolist())
+)
+
+filtered_alerts = alert_queue.copy()
+
+if risk_filter != "All":
+    filtered_alerts = filtered_alerts[filtered_alerts["risk_band"] == risk_filter]
+
+st.write(f"Showing {len(filtered_alerts):,} alerts")
+
+display_cols = [
+    "step",
+    "type",
+    "amount",
+    "nameOrig",
+    "nameDest",
+    "rule_score",
+    "ml_risk_score",
+    "final_risk_score",
+    "risk_band",
+    "isFraud",
+]
+
+available_cols = [col for col in display_cols if col in filtered_alerts.columns]
+
+st.dataframe(
+    filtered_alerts[available_cols].head(1000),
+    width="stretch"
+)
+
+st.caption("Note: The dashboard displays the first 1,000 filtered alerts for performance.")
