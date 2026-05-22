@@ -94,89 +94,137 @@ AML-Transaction-Monitoring-System/
 │
 ├── requirements.txt
 └── README.md
+```
 
-Methodology
-1. Data Processing
+## Methodology
+
+### 1. Data Processing
 The raw transaction data is loaded, inspected, cleaned, and prepared for analysis. The processing stage checks data structure, missing values, transaction types, and fraud distribution.
-2. Feature Engineering
+
+### 2. Feature Engineering
 New transaction features are created to support AML detection and model training. These include:
-Balance movement difference
-High-risk transaction type indicator
-Average amount sent
-Total amount sent
-Account behaviour features
-Rule-based alert indicators
-3. Rule-Based Detection
+
+- Balance movement difference
+- High-risk transaction type indicator
+- Average amount sent
+- Total amount sent
+- Account behaviour features
+- Rule-based alert indicators
+
+### 3. Rule-Based Detection
 The rule engine flags suspicious activity based on AML-style indicators such as:
-High-risk transaction types
-Unusual balance movement
-Suspicious transfer and cash-out behaviour
-Rule score thresholds
-4. Machine Learning
+
+- High-risk transaction types
+- Unusual balance movement
+- Suspicious transfer and cash-out behaviour
+- Rule score thresholds
+
+### 4. Machine Learning
 A Random Forest classification model is trained to identify suspicious and fraudulent transaction patterns. Model performance is evaluated using accuracy, precision, recall, F1 score, and ROC AUC.
-5. Risk Scoring
+
+### 5. Risk Scoring
 The system combines rule-based signals and machine learning output to create a final risk score. Transactions are grouped into:
-Critical
-High
-Medium
-Low
+
+- Critical
+- High
+- Medium
+- Low
+
 This allows investigators to review the most suspicious alerts first.
-6. Scenario and Trade-Off Analysis
+
+### 6. Scenario and Trade-Off Analysis
 The project compares different rule thresholds to show the trade-off between alert volume and fraud capture.
+
 Example:
-ScenarioAlerts CreatedFraud CapturedAlert Fraud Rate
-Original Rules: score >= 21,779,4218,1860.0046
-Strict Rules: score >= 3606,3855,2970.0087
+
+| Scenario | Alerts Created | Fraud Captured | Alert Fraud Rate |
+|---|---:|---:|---:|
+| Original Rules: score >= 2 | 1,779,421 | 8,186 | 0.0046 |
+| Strict Rules: score >= 3 | 606,385 | 5,297 | 0.0087 |
+
 This shows that stricter rules reduce alert volume but may also reduce fraud capture.
-Model Performance
-ModelAccuracyPrecisionRecallF1 ScoreROC AUC
-Random Forest99.74%97.60%99.03%98.31%0.9996
-Key Business Insights
-The Critical risk band contains the highest concentration of fraud.
-Prioritising Critical and High alerts can reduce investigation workload.
-Rule threshold tuning can significantly reduce alert volume.
-Machine learning improves prioritisation by ranking alerts based on risk.
-The dashboard gives investigators a practical alert queue for review.
-Dashboard
+
+### Model Performance
+
+| Model | Accuracy | Precision | Recall | F1 Score | ROC AUC |
+|---|---:|---:|---:|---:|---:|
+| Random Forest | 99.74% | 97.60% | 99.03% | 98.31% | 0.9996 |
+
+### Key Business Insights
+
+- The Critical risk band contains the highest concentration of fraud.
+- Prioritising Critical and High alerts can reduce investigation workload.
+- Rule threshold tuning can significantly reduce alert volume.
+- Machine learning improves prioritisation by ranking alerts based on risk.
+- The dashboard gives investigators a practical alert queue for review.
+
+## Dashboard
 The Streamlit dashboard includes:
-Key AML metrics
-Risk band summary
-Prioritised alert queue
-Model performance metrics
-Top model features
-Rule tuning comparison
-Alert queue explorer
+
+- Key AML metrics
+- Risk band summary
+- Prioritised alert queue
+- Model performance metrics
+- Top model features
+- Rule tuning comparison
+- Alert queue explorer
+
 To run the dashboard:
+
+```bash
 streamlit run dashboard/app.py
-Installation
+```
+
+## Installation
+
 Clone the repository:
+
+```bash
 git clone https://github.com/Eniola1cc/AML-Transaction-Monitoring-System.git
 cd AML-Transaction-Monitoring-System
+```
+
 Create and activate a virtual environment:
+
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
+```
+
 Install requirements:
+
+```bash
 pip install -r requirements.txt
+```
+
 Run the dashboard:
+
+```bash
 streamlit run dashboard/app.py
-Deliverables
-Detection system
-Risk scoring model
-Prioritised alert queue
-Streamlit dashboard
-Analytical report
-GitHub portfolio project
-Business Recommendation
+```
+
+## Deliverables
+
+- Detection system
+- Risk scoring model
+- Prioritised alert queue
+- Streamlit dashboard
+- Analytical report
+- GitHub portfolio project
+
+## Business Recommendation
 AML investigation teams should prioritise Critical and High risk alerts first. Medium alerts can be reviewed when analyst capacity allows, while Low alerts can be monitored with less manual review.
 This approach helps reduce false-positive workload while keeping focus on the transactions most likely to represent financial crime risk.
-Future Improvements
-Add SQL database integration
-Add investigator case management workflow
-Add time-based velocity features
-Add account-level network analysis
-Add model drift monitoring
-Add Power BI version of the dashboard
-Deploy the dashboard online
+
+## Future Improvements
+
+- Add SQL database integration
+- Add investigator case management workflow
+- Add time-based velocity features
+- Add account-level network analysis
+- Add model drift monitoring
+- Add Power BI version of the dashboard
+- Deploy the dashboard online
 
 
 ## Interview Walkthrough (2–3 minutes)
