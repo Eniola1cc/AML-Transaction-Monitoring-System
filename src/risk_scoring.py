@@ -7,8 +7,12 @@ from src.rules import explain_flags
 
 def assign_risk_score(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
-    out["risk_score"] = (0.55 * out["rule_score"] + 45 * out["ml_suspicious_prob"]).clip(0, 100)
-    out["alert_priority"] = out["risk_score"].rank(method="first", ascending=False).astype(int)
+    out["risk_score"] = (
+        0.55 * out["rule_score"] + 45 * out["ml_suspicious_prob"]
+    ).clip(0, 100)
+    out["alert_priority"] = (
+        out["risk_score"].rank(method="first", ascending=False).astype(int)
+    )
     out["explanation"] = out.apply(explain_flags, axis=1)
 
     out["risk_band"] = pd.cut(
@@ -19,7 +23,9 @@ def assign_risk_score(df: pd.DataFrame) -> pd.DataFrame:
     return out.sort_values("risk_score", ascending=False)
 
 
-def top_alert_capture(df: pd.DataFrame, label_col: str = "is_suspicious", top_pct: float = 0.15) -> float:
+def top_alert_capture(
+    df: pd.DataFrame, label_col: str = "is_suspicious", top_pct: float = 0.15
+) -> float:
     if label_col not in df.columns:
         return float("nan")
     n_top = max(1, int(len(df) * top_pct))

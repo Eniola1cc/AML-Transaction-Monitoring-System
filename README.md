@@ -177,3 +177,15 @@ Add account-level network analysis
 Add model drift monitoring
 Add Power BI version of the dashboard
 Deploy the dashboard online
+
+
+## Interview Walkthrough (2–3 minutes)
+- State the business problem: too many alerts, limited investigators.
+- Explain pipeline: SQL prep -> Python features -> rules + ML -> risk bands -> dashboard triage.
+- Defend metrics: high recall to reduce missed suspicious transactions, while precision helps workload control.
+- Show operational output: Critical/High first, Medium/Low by capacity and SLA.
+
+## Limitations
+- Dataset is simulated and may not represent full production behaviour.
+- No live case-management or investigator feedback loop yet.
+- Thresholds and model outputs require periodic recalibration in production.
