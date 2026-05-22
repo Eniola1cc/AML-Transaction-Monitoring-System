@@ -15,7 +15,9 @@ FEATURES = [
 ]
 
 
-def train_isolation_forest(df: pd.DataFrame, contamination: float = 0.03) -> IsolationForest:
+def train_isolation_forest(
+    df: pd.DataFrame, contamination: float = 0.03
+) -> IsolationForest:
     model = IsolationForest(
         n_estimators=200,
         contamination=contamination,
@@ -26,7 +28,9 @@ def train_isolation_forest(df: pd.DataFrame, contamination: float = 0.03) -> Iso
     return model
 
 
-def train_classifier(df: pd.DataFrame, label_col: str = "is_suspicious") -> Optional[RandomForestClassifier]:
+def train_classifier(
+    df: pd.DataFrame, label_col: str = "is_suspicious"
+) -> Optional[RandomForestClassifier]:
     if label_col not in df.columns:
         return None
     clf = RandomForestClassifier(
@@ -41,13 +45,15 @@ def train_classifier(df: pd.DataFrame, label_col: str = "is_suspicious") -> Opti
     return clf
 
 
-def score_models(df: pd.DataFrame, iso_model: IsolationForest, clf: Optional[RandomForestClassifier]) -> pd.DataFrame:
+def score_models(
+    df: pd.DataFrame, iso_model: IsolationForest, clf: Optional[RandomForestClassifier]
+) -> pd.DataFrame:
     out = df.copy()
     out["anomaly_score"] = -iso_model.decision_function(out[FEATURES])
     if clf is None:
-        out["ml_suspicious_prob"] = (out["anomaly_score"] - out["anomaly_score"].min()) / (
-            out["anomaly_score"].max() - out["anomaly_score"].min() + 1e-8
-        )
+        out["ml_suspicious_prob"] = (
+            out["anomaly_score"] - out["anomaly_score"].min()
+        ) / (out["anomaly_score"].max() - out["anomaly_score"].min() + 1e-8)
     else:
         out["ml_suspicious_prob"] = clf.predict_proba(out[FEATURES])[:, 1]
     return out

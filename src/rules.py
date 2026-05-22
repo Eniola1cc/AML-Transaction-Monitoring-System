@@ -43,7 +43,9 @@ def apply_rule_flags(df: pd.DataFrame) -> pd.DataFrame:
 
     # Normalize amount anomaly vs account baseline
     acct_med = out.groupby("account_id")["amount"].transform("median")
-    out["amount_anomaly_ratio"] = (out["amount"] / acct_med.replace(0, np.nan)).fillna(1.0)
+    out["amount_anomaly_ratio"] = (out["amount"] / acct_med.replace(0, np.nan)).fillna(
+        1.0
+    )
     out["amount_anomaly_flag"] = (out["amount_anomaly_ratio"] >= 3.0).astype(int)
 
     out["rule_score"] = (
