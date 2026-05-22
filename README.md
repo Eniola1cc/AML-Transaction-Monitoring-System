@@ -1,12 +1,19 @@
 # AML Transaction Monitoring System
 
-A rule-based and machine-learning AML transaction monitoring system for detecting suspicious financial transactions, scoring risk, and prioritising alerts for investigation.
+A rule-based and machine-learning AML transaction monitoring system for detecting
+suspicious financial transactions, scoring risk, and prioritising alerts for
+investigation.
 
 ## Business Context
 
-Financial institutions process large volumes of transactions every day. Traditional AML monitoring systems often generate many false-positive alerts, making it difficult for investigators to focus on the most suspicious activity.
+Financial institutions process large volumes of transactions every day. Traditional
+AML monitoring systems often generate many false-positive alerts, making it
+difficult for investigators to focus on the most suspicious activity.
 
-This project simulates an AML alert prioritisation workflow. It combines transaction rules, engineered behavioural features, machine learning, risk scoring, and a Streamlit dashboard to help analysts focus on the highest-risk transactions first.
+This project simulates an AML alert prioritisation workflow. It combines
+transaction rules, engineered behavioural features, machine learning, risk
+scoring, and a Streamlit dashboard to help analysts focus on the highest-risk
+transactions first.
 
 ## Project Objective
 
@@ -99,7 +106,9 @@ AML-Transaction-Monitoring-System/
 ## Methodology
 
 ### 1. Data Processing
-The raw transaction data is loaded, inspected, cleaned, and prepared for analysis. The processing stage checks data structure, missing values, transaction types, and fraud distribution.
+The raw transaction data is loaded, inspected, cleaned, and prepared for analysis.
+The processing stage checks data structure, missing values, and output shape before
+downstream modelling.
 
 ### 2. Feature Engineering
 New transaction features are created to support AML detection and model training. These include:
@@ -120,10 +129,13 @@ The rule engine flags suspicious activity based on AML-style indicators such as:
 - Rule score thresholds
 
 ### 4. Machine Learning
-A Random Forest classification model is trained to identify suspicious and fraudulent transaction patterns. Model performance is evaluated using accuracy, precision, recall, F1 score, and ROC AUC.
+A Random Forest classification model is trained to identify suspicious and
+fraudulent transaction patterns. Model performance is evaluated using classification
+metrics and ROC AUC.
 
 ### 5. Risk Scoring
-The system combines rule-based signals and machine learning output to create a final risk score. Transactions are grouped into:
+The system combines rule-based signals and machine learning output to create a final
+risk score. Transactions are grouped into:
 
 - Critical
 - High
@@ -213,12 +225,15 @@ streamlit run dashboard/app.py
 - GitHub portfolio project
 
 ## Business Recommendation
-AML investigation teams should prioritise Critical and High risk alerts first. Medium alerts can be reviewed when analyst capacity allows, while Low alerts can be monitored with less manual review.
-This approach helps reduce false-positive workload while keeping focus on the transactions most likely to represent financial crime risk.
+AML investigation teams should prioritise Critical and High risk alerts first.
+Medium alerts can be reviewed when analyst capacity allows, while Low alerts can
+be monitored with less manual review.
+This approach helps reduce false-positive workload while keeping focus on the
+transactions most likely to represent financial crime risk.
 
 ## Future Improvements
 
-- Add SQL database integration
+- Improve SQL database integration with automated SQLite pipeline execution
 - Add investigator case management workflow
 - Add time-based velocity features
 - Add account-level network analysis
