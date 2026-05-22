@@ -1,13 +1,9 @@
-import os
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
 
-# ------------------------------------------------------------
-# Page configuration
-# ------------------------------------------------------------
 st.set_page_config(
     page_title="AML Transaction Monitoring Dashboard",
     page_icon="🚨",
@@ -21,9 +17,6 @@ st.write(
 )
 
 
-# ------------------------------------------------------------
-# File paths
-# ------------------------------------------------------------
 REPORTS_DIR = Path("reports")
 
 RISK_BAND_SUMMARY_PATH = REPORTS_DIR / "risk_band_summary.csv"
@@ -35,18 +28,8 @@ BUSINESS_METRICS_PATH = REPORTS_DIR / "business_metrics.csv"
 ALERT_QUEUE_PATH = REPORTS_DIR / "prioritised_alert_queue.csv"
 
 
-# ------------------------------------------------------------
-# Helper functions
-# ------------------------------------------------------------
 def load_csv(file_path: Path, required: bool = True) -> pd.DataFrame:
-    """
-    Safely load a CSV file.
-
-    If required=True and the file is missing, stop the dashboard with
-    a clear error message.
-
-    If required=False and the file is missing, return an empty DataFrame.
-    """
+    """Load a CSV file safely."""
     if not file_path.exists():
         if required:
             st.error(f"Required file not found: {file_path}")
@@ -67,10 +50,7 @@ def get_metric_value(
     metric_name: str,
     default_value: int = 0,
 ) -> int:
-    """
-    Extract a metric value from the business_metrics dataframe.
-    Returns default_value if the metric does not exist.
-    """
+    """Extract a metric value from the business metrics file."""
     if business_metrics.empty:
         return default_value
 
@@ -89,20 +69,15 @@ def get_metric_value(
 
 
 def show_dataframe(title: str, dataframe: pd.DataFrame) -> None:
-    """
-    Display a dataframe only when it has data.
-    """
+    """Display a dataframe safely."""
     st.subheader(title)
 
     if dataframe.empty:
         st.info("No data available for this section yet.")
     else:
-        st.dataframe(dataframe, use_container_width=True)
+        st.dataframe(dataframe, width="stretch")
 
 
-# ------------------------------------------------------------
-# Load data
-# ------------------------------------------------------------
 @st.cache_data
 def load_data():
     risk_band_summary = load_csv(RISK_BAND_SUMMARY_PATH)
@@ -112,7 +87,7 @@ def load_data():
     rule_comparison = load_csv(RULE_COMPARISON_PATH)
     business_metrics = load_csv(BUSINESS_METRICS_PATH)
 
-    # This file may be large or may not exist yet, so we treat it as optional.
+    # This file may be large or may not exist yet, so it is optional.
     alert_queue = load_csv(ALERT_QUEUE_PATH, required=False)
 
     return (
@@ -137,9 +112,6 @@ def load_data():
 ) = load_data()
 
 
-# ------------------------------------------------------------
-# KPI section
-# ------------------------------------------------------------
 st.subheader("📌 Key AML Metrics")
 
 total_transactions = get_metric_value(business_metrics, "Total Transactions")
@@ -157,9 +129,6 @@ col4.metric("Critical Alerts", f"{critical_alerts:,}")
 st.divider()
 
 
-# ------------------------------------------------------------
-# Risk band summary
-# ------------------------------------------------------------
 show_dataframe("⚠️ Risk Band Summary", risk_band_summary)
 
 if not risk_band_summary.empty and {"risk_band", "transactions"}.issubset(
@@ -170,9 +139,6 @@ if not risk_band_summary.empty and {"risk_band", "transactions"}.issubset(
 st.divider()
 
 
-# ------------------------------------------------------------
-# Alert summary
-# ------------------------------------------------------------
 show_dataframe("🚩 Prioritised Alert Queue Summary", alert_summary)
 
 if not alert_summary.empty and {"risk_band", "fraud_cases"}.issubset(
@@ -183,15 +149,12 @@ if not alert_summary.empty and {"risk_band", "fraud_cases"}.issubset(
 st.divider()
 
 
-# ------------------------------------------------------------
-# Model performance
-# ------------------------------------------------------------
 st.subheader("🤖 Machine Learning Model Performance")
 
 if model_metrics.empty:
     st.info("No model metrics available yet.")
 else:
-    st.dataframe(model_metrics, use_container_width=True)
+    st.dataframe(model_metrics, width="stretch")
 
     required_metric_columns = {
         "accuracy",
@@ -220,16 +183,13 @@ else:
 st.divider()
 
 
-# ------------------------------------------------------------
-# Feature importance
-# ------------------------------------------------------------
 st.subheader("📊 Top Model Features")
 
 if feature_importance.empty:
     st.info("No feature importance data available yet.")
 else:
     top_features = feature_importance.head(10)
-    st.dataframe(top_features, use_container_width=True)
+    st.dataframe(top_features, width="stretch")
 
     if {"feature", "importance"}.issubset(top_features.columns):
         st.bar_chart(top_features.set_index("feature")["importance"])
@@ -241,23 +201,17 @@ else:
 st.divider()
 
 
-# ------------------------------------------------------------
-# Rule tuning comparison
-# ------------------------------------------------------------
 st.subheader("🧠 Rule Tuning Comparison")
 st.write("This compares alert volume and fraud capture across rule thresholds.")
 
 if rule_comparison.empty:
     st.info("No rule tuning comparison data available yet.")
 else:
-    st.dataframe(rule_comparison, use_container_width=True)
+    st.dataframe(rule_comparison, width="stretch")
 
 st.divider()
 
 
-# ------------------------------------------------------------
-# Alert queue explorer
-# ------------------------------------------------------------
 st.subheader("🔎 Alert Queue Explorer")
 
 if alert_queue.empty:
@@ -305,7 +259,7 @@ else:
         else:
             st.dataframe(
                 filtered_alerts[available_display_cols].head(1000),
-                use_container_width=True,
+                width="stretch",
             )
 
             st.caption(

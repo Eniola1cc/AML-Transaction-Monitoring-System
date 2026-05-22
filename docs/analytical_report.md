@@ -1,65 +1,45 @@
-# AML Transaction Monitoring System — Analytical Report
+# Analytical Report: AML Transaction Monitoring System
 
-## 1) Business Problem
-Financial crime investigation teams often face high alert volumes with limited analyst capacity. The core objective is to reduce low-value review effort and prioritise transactions with the highest likelihood of suspicious behaviour.
+## 1. Business Problem
 
-## 2) Dataset Overview
-The project uses a simulated transaction dataset with key fields such as transaction type, amount, origin/destination accounts, account balances, and fraud labels. This enables controlled experimentation of AML workflow logic.
+Financial institutions process large volumes of transactions daily. Traditional AML monitoring systems can generate high volumes of alerts, many of which may be false positives. This creates workload pressure for compliance and investigation teams.
 
-## 3) End-to-End Workflow
-1. Data processing and quality checks.
-2. Feature engineering for behavioural and transactional signals.
-3. Rule-based suspicious-pattern detection.
-4. Random Forest model training and evaluation.
-5. Combined risk scoring and risk-band assignment.
-6. Prioritised alert output and dashboard reporting.
+This project demonstrates how rule-based detection, machine learning, and risk scoring can be used to prioritise suspicious transactions for analyst review.
 
-## 4) SQL Processing Layer
-A dedicated `sql/` layer now provides:
-- Table creation scripts for accounts and transactions.
-- Data loading and validation queries.
-- Transaction-level summary aggregations.
-- Account behaviour feature extraction.
-- Suspicious pattern and prioritised queue candidate queries.
+## 2. Project Workflow
 
-## 5) Feature Engineering
-Engineered features include transaction frequency, high-risk transaction type counts, near-threshold transaction behaviour, and account-level behavioural baselines.
+The project follows this flow:
 
-## 6) Rule-Based AML Detection
-Rules capture common AML indicators:
-- Structuring-like behaviour near reporting thresholds.
-- Rapid transaction velocity.
-- Geographic mismatches.
-- Unusual transaction amounts relative to account baseline.
+Raw transaction data → SQL processing → Python feature engineering → rule-based detection → machine learning model → risk scoring → risk bands → Streamlit dashboard.
 
-## 7) Machine Learning Model
-A Random Forest classifier is used to estimate suspicious behaviour likelihood. Performance is tracked with accuracy, precision, recall, F1-score, and ROC-AUC.
+## 3. Data Processing
 
-## 8) Risk Scoring Method
-The final risk score combines rule-based intensity and ML probability into a 0–100 scale. Transactions are segmented into `Low`, `Medium`, `High`, and `Critical` bands to support operational triage.
+The dataset contains transaction type, amount, origin and destination accounts, origin and destination balances, and fraud labels. The data was prepared for modelling and alert scoring.
 
-## 9) Scenario / Trade-Off Analysis
-The project compares threshold settings to demonstrate the alert-volume versus fraud-capture trade-off. Stricter thresholds reduce workload but may lower detection coverage.
+## 4. Feature Engineering
 
-## 10) Dashboard Explanation
-The Streamlit dashboard provides:
-- AML KPI overview.
-- Risk-band distribution.
-- Alert queue summaries.
-- Model metrics and top features.
-- Rule-tuning comparison.
-- Filterable alert explorer (when detailed queue file exists).
+Features were created to capture transaction behaviour, including high-risk transaction type indicators, balance movement differences, transaction amount patterns, and account-level behavioural signals.
 
-## 11) Business Impact
-The system supports investigator productivity by surfacing high-risk alerts first and enabling evidence-based prioritisation decisions.
+## 5. Rule-Based Detection
 
-## 12) Limitations
-- Dataset is simulated, not live bank data.
-- No integrated case-management workflow.
-- Model behaviour may differ in production environments with changing transaction patterns.
+AML-style rules were used to flag suspicious activity such as high-risk transaction types, unusual balance movements, and suspicious transfer or cash-out behaviour.
 
-## 13) Future Improvements
-- Integrate persistent SQL database workflow in production runtime.
-- Add temporal velocity and graph/network analytics.
-- Introduce model monitoring and drift detection.
-- Extend to investigator case-routing and feedback loop.
+## 6. Machine Learning
+
+A Random Forest model was trained to classify suspicious/fraudulent transactions. Performance was evaluated using accuracy, precision, recall, F1-score, and ROC-AUC.
+
+## 7. Risk Scoring
+
+The project converts model and rule outputs into a final risk score and groups transactions into Critical, High, Medium, and Low risk bands.
+
+## 8. Business Impact
+
+The system helps investigators focus on Critical and High-risk alerts first, reducing manual review pressure and improving alert prioritisation.
+
+## 9. Limitations
+
+The dataset is simulated and does not represent live bank data. In production, thresholds would need validation by AML analysts, model monitoring, and periodic recalibration.
+
+## 10. Future Improvements
+
+Future work could include case management workflow, Power BI reporting, automated SQL execution, model drift monitoring, and investigator feedback loops.
